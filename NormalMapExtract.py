@@ -20,7 +20,7 @@ def image_is_rgb(map: Image):
         
     return True
 
-def calculate_light(normal_map: Image):
+def calculate_light(normal_map: Image, diffuse_map: Image):
     """
     Return the image pixel color information as an ndarray with a shape of (pixel width, pixel height, 3)
     """
@@ -28,14 +28,18 @@ def calculate_light(normal_map: Image):
     if not image_is_rgb(normal_map):
         raise Exception("Image must have RGB channels.")
     
+    if normal_map.width != diffuse_map.width or normal_map.height != diffuse_map.height:
+        raise Exception("All maps must have the same dimensions.")
+
     lit_img_pixels = []
-    pixel_color_data = normal_map.getdata()
+    normal_map_data = normal_map.getdata()
+    diffuse_map_data = diffuse_map.getdata()
 
-    red = 255
-    green = 255
-    blue = 255
+    r_nm = 255
+    g_nm = 255
+    b_nm = 255
 
-    light_vector = (1, 0, 0)
+    light_vector = (.7071, 0, .7071)
     viewer_vector = (0, 0, 1)
     reflected_vector = tuple()
 
@@ -69,27 +73,29 @@ def calculate_light(normal_map: Image):
     ms_g = 1
     ms_b = 1
 
-    md_r = .31
-    md_g = .6
-    md_b = .6
-
     mh = 160
-
-    entry = 1
 
     lit_row_pixels = []
 
-    for pixel in pixel_color_data:
+    for entry in range(len(normal_map_data)):
 
-        if red != pixel[0] or green != pixel[1] or blue != pixel[2] or entry == 1:
-            red = pixel[0]
-            green = pixel[1]
-            blue = pixel[2]
+        r_dm = diffuse_map_data[entry][0]
+        g_dm = diffuse_map_data[entry][1]
+        b_dm = diffuse_map_data[entry][2]
+
+        md_r = r_dm/255
+        md_g = g_dm/255
+        md_b = b_dm/255
+
+        if r_nm != normal_map_data[entry][0] or g_nm != normal_map_data[entry][1] or b_nm != normal_map_data[entry][2] or entry == 0:
+            r_nm = normal_map_data[entry][0]
+            g_nm = normal_map_data[entry][1]
+            b_nm = normal_map_data[entry][2]
             
             #Calculate x, y, z vector components using the pixel's RGB channel values
-            x = (red - 128)/128
-            y = (green - 128)/128
-            z = (blue - 128)/128
+            x = (r_nm - 128)/128
+            y = (g_nm - 128)/128
+            z = (b_nm - 128)/128
 
             normal_vector = (x, y, z)
 
@@ -121,28 +127,28 @@ def calculate_light(normal_map: Image):
         lit_row_pixels.append(lit_pixel)
 
         #restart the list for the next row of pixels
-        if entry % normal_map.width == 0:
+        if (entry + 1) % normal_map.width == 0:
             lit_img_pixels.append(lit_row_pixels.copy())
 
             lit_row_pixels.clear()
 
-        entry += 1
-
     return npy.array(lit_img_pixels).astype(npy.uint8)
 
 
-with Image.open("Resources\Test_Normal_Map - Copy.png") as image_info:
+with Image.open("Resources\Test_Normal_Map1.png") as image_info, Image.open("Resources\Test_Diffuse_Light_Map1.png") as diffuse_map_info:
     
     start = time.time()
     print("Timer started.")
-    lit_image_data = calculate_light(image_info)
+
+    lit_image_data = calculate_light(image_info, diffuse_map_info)
+
     end = time.time()
     print(end - start)
     print("Timer stopped")
 
 lit_image = Image.fromarray(lit_image_data, mode='RGB')
 
-lit_image.save("sample2.png")
+lit_image.save("sample.png")
 
 a = npy.asarray(lit_image)
 
