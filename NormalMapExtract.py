@@ -154,7 +154,7 @@ def calculate_light(normal_map: Image, diffuse_map: Image, light_vector: tuple):
     return npy.array(lit_img_pixels).astype(npy.uint8)
 
 
-with Image.open("Resources\Test_Normal_Map1.png") as image_info, Image.open("Resources\Test_Diffuse_Light_Map1.png") as diffuse_map_info:
+with Image.open("./Resources/Test_Normal_Map1.png") as image_info, Image.open("./Resources/Test_Diffuse_Light_Map1.png") as diffuse_map_info:
     
     num_frames = 5
 
@@ -172,7 +172,7 @@ with Image.open("Resources\Test_Normal_Map1.png") as image_info, Image.open("Res
 
         lit_image = Image.fromarray(lit_image_data, mode='RGB')
 
-        lit_image.save("Output\sample" + str(x) + ".png")
+        lit_image.save("Output/sample" + str(x) + ".png")
 
         print("Finished rendering frame " + str(x) + " out of " + str(num_frames))
 
