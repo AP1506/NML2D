@@ -99,11 +99,14 @@ def calculate_light(normal_map: Image, diffuse_map: Image, light_vector: tuple):
         md_g = g_dm/255
         md_b = b_dm/255
 
+        r_nm = normal_map_data[entry][0]
+        g_nm = normal_map_data[entry][1]
+        b_nm = normal_map_data[entry][2]
+
+        dict_key = ((r_dm, g_dm, b_dm), (r_nm, g_nm, b_nm))
+
         #if the color has not been used for calculations yet, calculate and record values
-        if (r_dm, g_dm, b_dm) not in calculated_values:
-            r_nm = normal_map_data[entry][0]
-            g_nm = normal_map_data[entry][1]
-            b_nm = normal_map_data[entry][2]
+        if dict_key not in calculated_values:
             
             #Calculate x, y, z vector components using the pixel's RGB channel values
             x = (r_nm - 128)/128
@@ -134,12 +137,12 @@ def calculate_light(normal_map: Image, diffuse_map: Image, light_vector: tuple):
             g_lit = round(255*min(1, g_lit))
             b_lit = round(255*min(1, b_lit))
 
-            calculated_values[(r_dm, g_dm, b_dm)] = (r_lit, g_lit, b_lit)
+            calculated_values[dict_key] = (r_lit, g_lit, b_lit)
 
         else:
-            r_lit = calculated_values.get((r_dm, g_dm, b_dm))[0]
-            g_lit = calculated_values.get((r_dm, g_dm, b_dm))[1]
-            b_lit = calculated_values.get((r_dm, g_dm, b_dm))[2]
+            r_lit = calculated_values.get(dict_key)[0]
+            g_lit = calculated_values.get(dict_key)[1]
+            b_lit = calculated_values.get(dict_key)[2]
         
         lit_pixel = [r_lit, g_lit, b_lit]
 
